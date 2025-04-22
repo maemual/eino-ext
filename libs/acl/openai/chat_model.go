@@ -90,6 +90,9 @@ type Config struct {
 	// Required
 	Model string `json:"model"`
 
+	// MaxCompletionTokens An upper bound for the number of tokens that can be generated for a completion,
+	// including visible output tokens and [reasoning tokens](https://platform.openai.com/docs/guides/reasoning).
+	MaxCompletionTokens *int `json:"max_completion_tokens,omitzero"`
 	// MaxTokens limits the maximum number of tokens that can be generated in the chat completion
 	// Optional. Default: model's maximum
 	MaxTokens *int `json:"max_tokens,omitempty"`
@@ -323,18 +326,19 @@ func (c *Client) genRequest(in []*schema.Message, opts ...model.Option) (*openai
 	}, opts...)
 
 	req := &openai.ChatCompletionRequest{
-		Model:            *options.Model,
-		MaxTokens:        dereferenceOrZero(options.MaxTokens),
-		Temperature:      options.Temperature,
-		TopP:             dereferenceOrZero(options.TopP),
-		Stop:             c.config.Stop,
-		PresencePenalty:  dereferenceOrZero(c.config.PresencePenalty),
-		Seed:             c.config.Seed,
-		FrequencyPenalty: dereferenceOrZero(c.config.FrequencyPenalty),
-		LogitBias:        c.config.LogitBias,
-		User:             dereferenceOrZero(c.config.User),
-		LogProbs:         c.config.LogProbs,
-		TopLogProbs:      c.config.TopLogProbs,
+		Model:               *options.Model,
+		MaxTokens:           dereferenceOrZero(options.MaxTokens),
+		MaxCompletionTokens: dereferenceOrZero(c.config.MaxCompletionTokens),
+		Temperature:         options.Temperature,
+		TopP:                dereferenceOrZero(options.TopP),
+		Stop:                c.config.Stop,
+		PresencePenalty:     dereferenceOrZero(c.config.PresencePenalty),
+		Seed:                c.config.Seed,
+		FrequencyPenalty:    dereferenceOrZero(c.config.FrequencyPenalty),
+		LogitBias:           c.config.LogitBias,
+		User:                dereferenceOrZero(c.config.User),
+		LogProbs:            c.config.LogProbs,
+		TopLogProbs:         c.config.TopLogProbs,
 	}
 
 	cbInput := &model.CallbackInput{
